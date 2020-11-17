@@ -73,7 +73,12 @@ module Hyrax
       property :date_uploaded, readable: false
       property :agreement_accepted, virtual: true, default: false, prepopulator: ->(_opts) { self.agreement_accepted = !model.new_record }
 
-      collection :permissions, virtual: true, default: [], form: Permission, prepopulator: ->(_opts) { self.permissions = Hyrax::AccessControl.for(resource: model).permissions }
+      collection :permissions,
+                 virtual: true,
+                 default: [],
+                 form: Permission,
+                 prepopulator: ->(_opts) { self.permissions = Hyrax::AccessControl.for(resource: model).permissions },
+                 populator: ->(_opts) { Hyrax::AccessControl.for(resource: model).permissions = self.permissions }
 
       # virtual properties for embargo/lease;
       property :embargo_release_date, virtual: true, prepopulator: ->(_opts) { self.embargo_release_date = model.embargo&.embargo_release_date }

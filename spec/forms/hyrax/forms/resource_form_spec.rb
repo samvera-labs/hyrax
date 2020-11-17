@@ -169,6 +169,18 @@ RSpec.describe Hyrax::Forms::ResourceForm do
           .to contain_exactly(have_attributes(agent_name: 'group/public', access: :read))
       end
     end
+
+    context 'with updated permissions' do
+      before do
+        form.permissions = { agent_name: 'group/public', access: :read }
+      end
+
+      it 'updates the work' do
+        expect { form.sync }
+          .to change { Hyrax::AccessControl.for(resource: work).permissions }
+          .to contain_exactly(have_attributes(agent_name: 'group/public', access: :read))
+      end
+    end
   end
 
   describe '#human_readable_type' do
