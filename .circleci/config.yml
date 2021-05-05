@@ -192,3 +192,21 @@ workflows:
           bundler_version: "2.1.4"
           requires:
             - build
+  ruby2-7-3:
+    jobs:
+      - bundle:
+          ruby_version: "2.7.3"
+          rails_version: "5.2.5"
+          bundler_version: "2.1.4"
+      - build:
+          ruby_version: "2.7.3"
+          rails_version: "5.2.5"
+          bundler_version: "2.1.4"
+          requires:
+            - bundle
+      - test:
+          name: "ruby2-7-3"
+          ruby_version: "2.7.3"
+          bundler_version: "2.1.4"
+          requires:
+            - build

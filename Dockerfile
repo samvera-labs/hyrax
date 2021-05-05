@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=2.7.2
+ARG RUBY_VERSION=2.7.3
 # lock at alpine3.12 because 3.13 has dns resolver problems
 FROM ruby:$RUBY_VERSION-alpine3.12 as hyrax-base
 
