@@ -19,7 +19,7 @@ export default class Autocomplete {
 
   byDataAttribute(element, url) {
     let type = element.data('autocomplete-type')
-    let exlude = element.data('exclude-work')
+    let exclude = element.data('exclude-work')
     if(type === 'resource' && exclude.length > 0) {
       new Resource(
         element,
@@ -53,6 +53,7 @@ export default class Autocomplete {
         break
       case 'based_near':
         new LinkedData(element, url)
+        break
       default:
         new Default(element, url)
         break
