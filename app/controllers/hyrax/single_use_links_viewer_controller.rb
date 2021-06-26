@@ -66,7 +66,7 @@ module Hyrax
     end
 
     def asset
-      @asset ||= Hyrax.query_service.find_by_alternate_identifier(alternate_identifier: single_use_link.item_id, use_valkyrie: false)
+      @asset ||= Hyrax.query_service.find_by_alternate_identifier(alternate_identifier: single_use_link.item_id, use_valkyrie: Hyrax.config.use_valkyrie?)
     end
 
     def current_ability
