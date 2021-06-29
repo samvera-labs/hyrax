@@ -1,4 +1,6 @@
-ENV["RAILS_ENV"] ||= 'test'
+$VERBOSE = nil unless ENV['RUBY_LOUD'] # silence loud Ruby 2.7 deprecations
+ENV["RAILS_ENV"] = 'test'
+ENV['DATABASE_URL'] = ENV['DATABASE_TEST_URL'] if ENV['DATABASE_TEST_URL']
 require "bundler/setup"
 
 def coverage_needed?
@@ -26,8 +28,21 @@ if coverage_needed?
 end
 
 require 'factory_bot'
-require 'engine_cart'
-EngineCart.load_application!
+
+if ENV['IN_DOCKER']
+  require File.expand_path("config/environment", '../hyrax-webapp')
+  db_config = ActiveRecord::Base.configurations[ENV['RAILS_ENV']]
+  ActiveRecord::Tasks::DatabaseTasks.create(db_config)
+
+  ActiveRecord::Migrator.migrations_paths = [Pathname.new(ENV['RAILS_ROOT']).join('db', 'migrate').to_s]
+  ActiveRecord::Tasks::DatabaseTasks.migrate
+  ActiveRecord::Base.descendants.each(&:reset_column_information)
+else
+  require 'engine_cart'
+  EngineCart.load_application!
+end
+
+ActiveRecord::Migration.maintain_test_schema!
 
 require 'devise'
 require 'devise/version'
@@ -40,7 +55,7 @@ require 'rspec/active_model/mocks'
 require 'capybara/rspec'
 require 'capybara/rails'
 require 'selenium-webdriver'
-require 'webdrivers'
+require 'webdrivers' unless ENV['IN_DOCKER'].present? || ENV['HUB_URL'].present?
 require 'equivalent-xml'
 require 'equivalent-xml/rspec_matchers'
 require 'database_cleaner'
@@ -62,30 +77,60 @@ end
 Dir[File.join(File.dirname(__FILE__), "support/**/*.rb")].each { |f| require f }
 
 require 'webmock/rspec'
-WebMock.disable_net_connect!(allow_localhost: true, allow: 'chromedriver.storage.googleapis.com')
+allowed_hosts = %w[chrome chromedriver.storage.googleapis.com fcrepo solr]
+WebMock.disable_net_connect!(allow_localhost: true, allow: allowed_hosts)
 
 require 'i18n/debug' if ENV['I18N_DEBUG']
 require 'byebug' unless ci_build?
 
-# @note In January 2018, TravisCI disabled Chrome sandboxing in its Linux
-#       container build environments to mitigate Meltdown/Spectre
-#       vulnerabilities, at which point Hyrax could no longer use the
-#       Capybara-provided :selenium_chrome_headless driver (which does not
-#       include the `--no-sandbox` argument).
-Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
-  browser_options.args << '--headless'
-  browser_options.args << '--disable-gpu'
-  browser_options.args << '--no-sandbox'
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+require 'webdrivers' unless ENV['IN_DOCKER'].present? || ENV['HUB_URL'].present?
+
+if ENV['IN_DOCKER'].present? || ENV['HUB_URL'].present?
+  driver_args = %w[disable-gpu no-sandbox whitelisted-ips window-size=1400,1400]
+  driver_args.push('headless') if ActiveModel::Type::Boolean.new.cast(ENV['CHROME_HEADLESS_MODE'])
+
+  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(chromeOptions: { args: driver_args })
+
+  Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
+    driver = Capybara::Selenium::Driver.new(app,
+                                            browser: :remote,
+                                            desired_capabilities: capabilities,
+                                            url: ENV['HUB_URL'])
+
+    # Fix for capybara vs remote files. Selenium handles this for us
+    driver.browser.file_detector = lambda do |args|
+      str = args.first.to_s
+      str if File.exist?(str)
+    end
+
+    driver
+  end
+
+  Capybara.server_host = '0.0.0.0'
+  Capybara.server_port = 3010
+  Capybara.app_host = ENV['CAPYBARA_SERVER'] || 'http://127.0.0.1:3010'
+else
+  TEST_HOST = 'localhost:3000'.freeze
+  # @note In January 2018, TravisCI disabled Chrome sandboxing in its Linux
+  #       container build environments to mitigate Meltdown/Spectre
+  #       vulnerabilities, at which point Hyrax could no longer use the
+  #       Capybara-provided :selenium_chrome_headless driver (which does not
+  #       include the `--no-sandbox` argument).
+  Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
+    browser_options = ::Selenium::WebDriver::Chrome::Options.new
+    browser_options.args << '--headless'
+    browser_options.args << '--disable-gpu'
+    browser_options.args << '--no-sandbox'
+    Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+  end
+
+  # FIXME: Pin to older version of chromedriver to avoid issue with clicking
+  # non-visible elements
+  Webdrivers::Chromedriver.version = '72.0.3626.69'
 end
 
 Capybara.default_driver = :rack_test # This is a faster driver
 Capybara.javascript_driver = :selenium_chrome_headless_sandboxless # This is slower
-
-# FIXME: Pin to older version of chromedriver to avoid issue with clicking
-# non-visible elements
-Webdrivers::Chromedriver.version = '72.0.3626.69'
 
 # require 'http_logger'
 # HttpLogger.logger = Logger.new(STDOUT)
@@ -200,7 +245,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each, type: :view) do
-    WebMock.disable_net_connect!(allow_localhost: true, allow: 'chromedriver.storage.googleapis.com')
+    WebMock.disable_net_connect!(allow_localhost: true, allow: allowed_hosts)
   end
 
   config.before(:all, type: :feature) do

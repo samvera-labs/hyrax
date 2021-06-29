@@ -1,0 +1,15 @@
+image:
+  repository: samveralabs/dassie
+  pullPolicy: IfNotPresent
+  tag: "stable"
+
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - host: "dassie.dld.library.ucsb.edu"
+      paths: ["/"]
+  tls: []
+
+memcached:
+  enabled: true

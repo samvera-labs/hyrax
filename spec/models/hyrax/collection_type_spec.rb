@@ -36,7 +36,7 @@ RSpec.describe Hyrax::CollectionType, type: :model do
   describe '#gid' do
     it 'returns the gid when id exists' do
       collection_type.id = 5
-      expect(collection_type.gid.to_s).to eq 'gid://internal/hyrax-collectiontype/5'
+      expect(collection_type.gid.to_s).to eq "gid://#{GlobalID.app}/hyrax-collectiontype/5"
     end
 
     it 'returns nil when id is nil' do

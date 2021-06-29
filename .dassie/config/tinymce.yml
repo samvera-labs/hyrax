@@ -1,0 +1,13 @@
+default: &default
+  setup: tinymce_nav_safety # onChange event init
+content_block:
+  <<: *default
+  menubar: false
+  toolbar1: styleselect | bold italic | undo redo
+  toolbar2: table | fullscreen | image
+  plugins:
+    - table
+    - fullscreen
+    - image
+custom:
+  <<: *default

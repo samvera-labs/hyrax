@@ -20,23 +20,44 @@ module Hyrax
     private
 
       # TODO: this should move to a service.
+      #
+      # @todo Given that this method sends its methods to ::User, I
+      # believe it could be extracted to User; I don't think the
+      # base_query can be as it may require controller level context
+      #
       # Returns a list of users excluding the system users and guest_users
       # @param query [String] the query string
       def search(query)
-        clause = query.blank? ? nil : "%" + query.downcase + "%"
-        base = ::User.where(*base_query)
-        base = base.where("#{Hydra.config.user_key_field} like lower(?) OR display_name like lower(?)", clause, clause) if clause.present?
+        base = ::User
+        # TODO: Remove send wrapping of sanitize_sql_like when support for Rails 5.1 is dropped.
+        clause = query.blank? ? nil : "%#{base.send(:sanitize_sql_like, query.downcase)}%"
+        base = base.where(*Array.wrap(base_query))
+        # This may have some DB adapter specific behavior, which is
+        # definitely logic I'd like to keep out of a controller.
+        base = base.where("LOWER(#{Hydra.config.user_key_field}) LIKE :clause OR LOWER(display_name) LIKE :clause", clause: clause) if clause.present?
         base.registered
-            .where("#{Hydra.config.user_key_field} not in (?)",
-                   [::User.batch_user_key, ::User.audit_user_key])
+            .without_system_accounts
             .references(:trophies)
             .order(sort_value)
             .page(params[:page]).per(10)
       end
 
+      # @api public
+      #
       # You can override base_query to return a list of arguments
+      #
+      # @note This changed a default from `[nil]` to `{}`.  In part
+      # there were errors in the specs regarding this behavior.
+      #
+      # @example
+      #   def base_query
+      #     { custom_field: true }
+      #   end
+      #
+      # @return Hash (or more appropriate something that maps to the
+      # method signature of ActiveRecord::Base.where)
       def base_query
-        [nil]
+        {}
       end
 
       def find_user

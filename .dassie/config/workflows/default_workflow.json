@@ -1,0 +1,21 @@
+{
+    "workflows": [
+        {
+            "name": "default",
+            "label": "Default workflow",
+            "description": "A single submission step, default workflow",
+            "allows_access_grant": true,
+            "actions": [
+                {
+                    "name": "deposit",
+                    "from_states": [],
+                    "transition_to": "deposited",
+                    "methods": [
+                        "Hyrax::Workflow::GrantEditToDepositor",
+                        "Hyrax::Workflow::ActivateObject"
+                    ]
+                }
+            ]
+        }
+    ]
+}

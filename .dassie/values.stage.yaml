@@ -1,0 +1,7 @@
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - host: "staging.dassie.dld.library.ucsb.edu"
+      paths: ["/"]
+  tls: []

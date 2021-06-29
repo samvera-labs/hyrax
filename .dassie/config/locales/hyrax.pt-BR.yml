@@ -1,0 +1,58 @@
+---
+pt-BR:
+  blacklight:
+    search:
+      fields:
+        facet:
+          based_near_label_sim: Localização
+          creator_sim: Criador
+          file_format_sim: Formato
+          generic_type_sim: Tipo
+          keyword_sim: Palavra-chave
+          language_sim: Língua
+          publisher_sim: Editor
+          subject_sim: Sujeito
+        index:
+          based_near_tesim: Localização
+          contributor_tesim: Contribuinte
+          creator_tesim: O Criador
+          date_created_tesim: Data de Criação
+          date_modified_dtsi: Data de Modificação
+          date_uploaded_dtsi: Data de Carga
+          description_tesim: Descrição
+          file_format_tesim: Formato de arquivo
+          identifier_tesim: Identificador
+          keyword_tesim: Palavra-chave
+          language_tesim: Língua
+          license_tesim: Licença
+          publisher_tesim: Editor
+          rights_statement_tesim: Direitos
+          subject_tesim: Sujeito
+        show:
+          based_near_tesim: Localização
+          contributor_tesim: Colaborador
+          creator_tesim: Criador
+          date_created_tesim: Data de Criação
+          date_modified_dtsi: Data de Modificação
+          date_uploaded_dtsi: Data de Carga
+          description_tesim: Descrição
+          file_format_tesim: Formato de arquivo
+          identifier_tesim: Identificador
+          keyword_tesim: Palavra-chave
+          language_tesim: Língua
+          license_tesim: Licença
+          publisher_tesim: Editor
+          rights_statement_tesim: Direitos
+          subject_tesim: Sujeito
+          title_tesim: Título
+  hyrax:
+    account_name: ID da conta da minha instituição
+    directory:
+      suffix: "@ Example.org"
+    footer:
+      copyright_html: "<strong>Copyright © 2018 Samvera </strong> Licenciado sob a Licença Apache, Versão 2.0"
+      service_html: Um serviço de <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a> .
+    institution_name: Instituição
+    institution_name_full: O Nome da Instituição
+    product_name: Hyrax
+    product_twitter_handle: "@SamveraRepo"

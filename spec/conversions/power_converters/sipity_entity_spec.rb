@@ -23,7 +23,7 @@ RSpec.describe 'PowerConverter' do
       let(:object) { SolrDocument.new(id: '9999', has_model_ssim: ["GenericWork"]) }
       let(:workflow_state) { create(:workflow_state) }
       let!(:entity) do
-        Sipity::Entity.create(proxy_for_global_id: 'gid://internal/GenericWork/9999',
+        Sipity::Entity.create(proxy_for_global_id: "gid://#{GlobalID.app}/GenericWork/9999",
                               workflow_state: workflow_state,
                               workflow: workflow_state.workflow)
       end

@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      nested_work:     'fa fa-file-text-o'
+    select_type:
+      nested_work:
+        # TODO: translate `human_name` into Spanish
+        description:        "Nested work trabajos"
+        name:               "Nested Work"
+        # TODO: translate `human_name` into Spanish

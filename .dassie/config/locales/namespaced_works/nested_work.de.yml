@@ -1,0 +1,8 @@
+de:
+  hyrax:
+    icons:
+      nested_work:     'fa fa-file-text-o'
+    select_type:
+      nested_work:
+        description:        "Nested work Werke"
+        name:               "Nested Work"

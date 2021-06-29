@@ -1,0 +1,58 @@
+---
+de:
+  blacklight:
+    search:
+      fields:
+        facet:
+          based_near_label_sim: Ort
+          creator_sim: Schöpfer
+          file_format_sim: Format
+          generic_type_sim: Art
+          keyword_sim: Stichwort
+          language_sim: Sprache
+          publisher_sim: Herausgeber
+          subject_sim: Fach
+        index:
+          based_near_tesim: Ort
+          contributor_tesim: Mitwirkender
+          creator_tesim: Schöpfer
+          date_created_tesim: Datum erstellt
+          date_modified_dtsi: Datum geändert
+          date_uploaded_dtsi: Datum hochgeladen
+          description_tesim: Beschreibung
+          file_format_tesim: Datei Format
+          identifier_tesim: Identifikator
+          keyword_tesim: Stichwort
+          language_tesim: Sprache
+          license_tesim: Lizenz
+          publisher_tesim: Herausgeber
+          rights_statement_tesim: Rechte
+          subject_tesim: Fach
+        show:
+          based_near_tesim: Ort
+          contributor_tesim: Mitwirkender
+          creator_tesim: Schöpfer
+          date_created_tesim: Datum erstellt
+          date_modified_dtsi: Datum geändert
+          date_uploaded_dtsi: Datum hochgeladen
+          description_tesim: Beschreibung
+          file_format_tesim: Datei Format
+          identifier_tesim: Identifikator
+          keyword_tesim: Stichwort
+          language_tesim: Sprache
+          license_tesim: Lizenz
+          publisher_tesim: Herausgeber
+          rights_statement_tesim: Rechte
+          subject_tesim: Fach
+          title_tesim: Titel
+  hyrax:
+    account_name: Meine Institution Konto-ID
+    directory:
+      suffix: "@ Example.org"
+    footer:
+      copyright_html: "<strong>Copyright © 2018 Samvera lizenziert</strong> unter der Apache Lizenz, Version 2.0"
+      service_html: Ein Dienst von <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a> .
+    institution_name: Institution
+    institution_name_full: Name des Instituts
+    product_name: Hyrax
+    product_twitter_handle: "@SamveraRepo"

@@ -1,0 +1,41 @@
+terms:
+  - id: Article
+    term: Article
+  - id: Audio
+    term: Audio
+  - id: Book
+    term: Book
+  - id: Capstone Project
+    term: Capstone Project
+  - id: Conference Proceeding
+    term: Conference Proceeding
+  - id: Dataset
+    term: Dataset
+  - id: Dissertation
+    term: Dissertation
+  - id: Image
+    term: Image
+  - id: Journal
+    term: Journal
+  - id: Map or Cartographic Material
+    term: Map or Cartographic Material
+  - id: Masters Thesis
+    term: Masters Thesis
+  - id: Part of Book
+    term: Part of Book
+  - id: Poster
+    term: Poster
+  - id: Presentation
+    term: Presentation
+  - id: Project
+    term: Project
+  - id: Report
+    term: Report
+  - id: Research Paper
+    term: Research Paper
+  - id: Software or Program Code
+    term: Software or Program Code
+  - id: Video
+    term: Video
+  - id: Other
+    term: Other

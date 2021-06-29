@@ -1,0 +1,2 @@
+file_system:
+  home: <%= ENV.fetch('BROWSE_EVERYTHING_FS_PROVIDER_PATH', Rails.root) =>

@@ -10,7 +10,7 @@ RSpec.describe Hyrax::ControlledVocabulary::Importer::Language do
   end
 
   let(:instance) { described_class.new }
-  let(:rdf_path) { Gem.loaded_specs['hyrax'].full_gem_path + "/.internal_test_app/tmp/lexvo_2013-02-09.rdf" }
+  let(:rdf_path) { Rails.root.join('tmp', 'lexvo_2013-02-09.rdf').to_s }
 
   it "imports stuff" do
     expect(Qa::Services::RDFAuthorityParser).to receive(:import_rdf).with(
