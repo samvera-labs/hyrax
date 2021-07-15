@@ -89,20 +89,32 @@ RSpec.shared_examples 'a Core metadata indexer' do
   before do
     raise 'indexer_class must be set with `let(:indexer_class)`' unless defined? indexer_class
     # NOTE: The resource's class is expected to have or inherit `include Hyrax::Schema(:core_metadata)`
-    raise 'resource must be set with `let(:resource)` and is expected to be a kind of Hyrax::Resource' unless defined?(resource) && resource.kind_of?(Hyrax::Resource)
+    if indexer_class < Hyrax::ValkyrieIndexer
+      raise 'resource must be set with `let(:resource)` and is expected to be a kind of Hyrax::Resource' unless defined?(resource) && resource.kind_of?(Hyrax::Resource)
+      @indexer_method_name = :to_solr
+    else
+      raise 'resource must be set with `let(:resource)` and is expected to be a kind of ActiveFedora::Base' unless defined?(resource) && resource.kind_of?(ActiveFedora::Base)
+      @indexer_method_name = :generate_solr_document
+    end
     resource.title = titles
   end
-  subject(:indexer) { indexer_class.new(resource: resource) }
+  subject(:indexer) do
+    if indexer_class < Hyrax::ValkyrieIndexer
+      indexer_class.new(resource: resource)
+    else
+      indexer_class.new(resource)
+    end
+  end
   let(:titles)      { ['Comet in Moominland', 'Finn Family Moomintroll'] }
 
   describe '#to_solr' do
     it 'indexes title as text' do
-      expect(indexer.to_solr)
+      expect(indexer.send(@indexer_method_name))
         .to include(title_tesim: a_collection_containing_exactly(*titles))
     end
 
     it 'indexes title as string' do
-      expect(indexer.to_solr)
+      expect(indexer.send(@indexer_method_name))
         .to include(title_sim: a_collection_containing_exactly(*titles))
     end
   end

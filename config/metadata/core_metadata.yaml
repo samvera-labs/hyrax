@@ -9,9 +9,16 @@ attributes:
       required: true
       primary: true
       multiple: false
+    predicate: 'http://purl.org/dc/terms/title'
   date_modified:
     type: date_time
+    multiple: false
+    predicate: 'http://purl.org/dc/terms/modified'
   date_uploaded:
     type: date_time
+    multiple: false
+    predicate: 'http://purl.org/dc/terms/dateSubmitted'
   depositor:
     type: string
+    multiple: false
+    predicate: 'http://id.loc.gov/vocabulary/relators/dpt'

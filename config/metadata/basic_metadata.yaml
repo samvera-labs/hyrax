@@ -1,21 +1,25 @@
 attributes:
   abstract:
     type: string
+    predicate: http://purl.org/dc/terms/abstract
     multiple: true
     form:
       primary: false
   access_right:
     type: string
+    predicate: http://purl.org/dc/terms/accessRights
     multiple: true
     form:
       primary: false
   alternative_title:
     type: string
+    predicate: http://purl.org/dc/terms/alternative
     multiple: true
     form:
       primary: false
   based_near:
     type: string
+    predicate: http://xmlns.com/foaf/0.1/based_near
     multiple: true
     form:
       primary: false
@@ -24,14 +28,17 @@ attributes:
       - "based_near_tesim"
   bibliographic_citation:
     type: string
+    predicate: http://purl.org/dc/terms/bibliographicCitation
     multiple: true
   contributor:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/contributor
     multiple: true
     form:
       primary: false
   creator:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/creator
     multiple: true
     form:
       required: true
@@ -40,6 +47,7 @@ attributes:
       - "creator_tesim"
   date_created:
     type: date_time
+    predicate: http://purl.org/dc/terms/created
     multiple: true
     form:
       primary: false
@@ -47,18 +55,23 @@ attributes:
       - "date_created_tesim"
   description:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/description
     multiple: true
     form:
       primary: false
   identifier:
     type: string
+    predicate: http://purl.org/dc/terms/identifier
     multiple: true
     form:
       primary: false
   import_url:
     type: string
+    predicate: http://scholarsphere.psu.edu/ns#importUrl
+    multiple: false
   keyword:
     type: string
+    predicate: http://schema.org/keywords
     multiple: true
     index_keys:
       - "keyword_sim"
@@ -67,27 +80,33 @@ attributes:
       primary: false
   publisher:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/publisher
     multiple: true
     form:
       primary: false
   label:
     type: string
-    form:
-      primary: false
+    predicate: info:fedora/fedora-system:def/model#downloadFilename
+    multiple: false
   language:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/language
     multiple: true
     form:
       primary: false
   license:
     type: string
+    predicate: http://purl.org/dc/terms/license
     multiple: true
     form:
       primary: false
   relative_path:
     type: string
+    predicate: http://scholarsphere.psu.edu/ns#relativePath
+    multiple: false
   related_url:
     type: string
+    predicate: http://www.w3.org/2000/01/rdf-schema#seeAlso
     multiple: true
     form:
       primary: false
@@ -95,6 +114,7 @@ attributes:
       - "related_url_tesim"
   resource_type:
     type: string
+    predicate: http://purl.org/dc/terms/type
     multiple: true
     form:
       primary: false
@@ -103,21 +123,26 @@ attributes:
       - "resource_type_tesim"
   rights_notes:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/rights
     multiple: true
     form:
       primary: false
   rights_statement:
     type: string
+    predicate: http://www.europeana.eu/schemas/edm/rights
     multiple: true
     form:
       primary: true
+      required: true
   source:
     type: string
+    predicate: http://purl.org/dc/terms/source
     multiple: true
     form:
       primary: false
   subject:
     type: string
+    predicate: http://purl.org/dc/elements/1.1/subject
     multiple: true
     index_keys:
       - "subject_sim"

@@ -6,6 +6,8 @@ module Hyrax
     class WorkForm
       include HydraEditor::Form
       include HydraEditor::Form::Permissions
+      include Hyrax::FormFields(:core_metadata)
+      include Hyrax::FormFields(:basic_metadata)
       attr_accessor :current_ability
 
       # This is required so that fields_for will draw a nested form.
@@ -20,16 +22,13 @@ module Hyrax
                :visibility, :in_works_ids, :depositor, :on_behalf_of, :permissions,
                :member_ids, :alternative_title, to: :model
 
-      self.terms = [:title, :alternative_title, :creator, :contributor, :description, :abstract,
-                    :keyword, :license, :rights_statement, :access_right, :rights_notes, :publisher, :date_created,
-                    :subject, :language, :identifier, :based_near, :related_url,
-                    :representative_id, :thumbnail_id, :rendering_ids, :files,
-                    :visibility_during_embargo, :embargo_release_date, :visibility_after_embargo,
-                    :visibility_during_lease, :lease_expiration_date, :visibility_after_lease,
-                    :visibility, :ordered_member_ids, :source, :in_works_ids,
-                    :member_of_collection_ids, :admin_set_id]
+      self.terms += [:representative_id, :thumbnail_id, :rendering_ids, :files,
+                     :visibility_during_embargo, :embargo_release_date, :visibility_after_embargo,
+                     :visibility_during_lease, :lease_expiration_date, :visibility_after_lease,
+                     :visibility, :ordered_member_ids, :in_works_ids,
+                     :member_of_collection_ids, :admin_set_id]
 
-      self.required_fields = [:title, :creator, :rights_statement]
+      # self.required_fields = [:title, :creator, :rights_statement]
 
       # The service that determines the cardinality of each field
       self.field_metadata_service = Hyrax::FormMetadataService

@@ -22,6 +22,17 @@ module Hyrax
     ##
     # @param [Symbol] schema
     #
+    # @return [Hash<Symbol, Hash>] a map from attribute names to
+    #   property configurations
+    def attributes_config_for(schema:)
+      definitions(schema).each_with_object({}) do |definition, hash|
+        hash[definition.name] = definition.config
+      end
+    end
+
+    ##
+    # @param [Symbol] schema
+    #
     # @return [Hash{Symbol => Hash{Symbol => Object}}]
     def form_definitions_for(schema:)
       definitions(schema).each_with_object({}) do |definition, hash|

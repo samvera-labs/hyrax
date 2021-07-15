@@ -31,9 +31,23 @@ module Hyrax
     ##
     # @param [Hash{Symbol => Symbol}] rules
     def initialize(rules)
-      define_method :to_solr do |*args|
+      @rules = rules
+    end
+
+    private
+
+    def included(descendant)
+      # Define #to_solr or #generate_solr_document depending on the indexer superclass
+      if descendant < Hyrax::ValkyrieIndexer
+        method_name = :to_solr
+      else
+        method_name = :generate_solr_document
+        descendant.alias_method(:resource, :object)
+      end
+      rules = @rules
+      define_method method_name do |*args|
         super(*args).tap do |document|
-          rules.each do |index_key, method|
+          Array(rules).each do |index_key, method|
             document[index_key] = resource.try(method)
           end
         end
