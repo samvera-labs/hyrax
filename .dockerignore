@@ -10,3 +10,6 @@ Dockerfile
 artifacts/*
 coverage/*
 chart/*
+
+Gemfile.lock
+.dassie/Gemfile.lock

@@ -1,4 +1,11 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
+# Attempts to determine if a global gem source has ready been added by another Gemfile
+if @sources.global_rubygems_source == Bundler::SourceList.new.global_rubygems_source
+  Bundler.ui.warn '[Dassie] Adding global rubygems source.'
+  source 'https://rubygems.org'
+else
+  Bundler.ui.warn "[Dassie] Global rubygems source already set: #{@sources.global_rubygems_source.inspect}"
+end
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.2'
@@ -43,9 +50,7 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-begin # this is a hack to allow `eval_gemfile` to work correctly
-  gem 'hyrax', path: ENV.fetch('HYRAX_ENGINE_PATH', '..')
-rescue; end
+gemspec name: 'hyrax', path: ENV.fetch('HYRAX_ENGINE_PATH', '..')
 
 gem 'rsolr', '>= 1.0', '< 3'
 gem 'bootstrap-sass', '~> 3.0'
