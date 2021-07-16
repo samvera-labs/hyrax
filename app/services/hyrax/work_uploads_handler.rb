@@ -114,8 +114,9 @@ module Hyrax
       file_set.permission_manager.acl.save if file_set.permission_manager.acl.pending_changes?
       append_to_work(file_set)
 
-      IngestJob.perform_later(wrap_file(file, file_set))
+      file.perform_ingest_later(file_set: file_set)
       Hyrax.publisher.publish('object.metadata.updated', object: file_set, user: file.user)
+
       { file_set: file_set, user: file.user }
     end
 
@@ -158,13 +159,6 @@ module Hyrax
     # @return [Hyrax::AccessControlList] permissions to set on created filesets
     def target_permissions
       @target_permissions ||= Hyrax::AccessControlList.new(resource: work)
-    end
-
-    ##
-    # @api private
-    # @return [JobIoWrapper]
-    def wrap_file(file, file_set)
-      JobIoWrapper.create_with_varied_file_handling!(user: file.user, file: file, relation: :original_file, file_set: file_set)
     end
 
     ##
