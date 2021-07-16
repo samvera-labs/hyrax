@@ -202,6 +202,7 @@ module Hyrax
 
         @curation_concern =
           form.validate(params[hash_key_for_curation_concern]) &&
+          normalize_uploaded_files! &&
           transactions['change_set.create_work']
           .with_step_args('work_resource.add_to_parent' => { parent_id: params[:parent_id], user: current_user },
                           'work_resource.add_file_sets' => { uploaded_files: uploaded_files, file_set_params: params[hash_key_for_curation_concern][:file_set] },
@@ -219,6 +220,7 @@ module Hyrax
 
         @curation_concern =
           form.validate(params[hash_key_for_curation_concern]) &&
+          normalize_uploaded_files! &&
           transactions['change_set.update_work']
           .with_step_args('work_resource.add_file_sets' => { uploaded_files: uploaded_files, file_set_params: params[hash_key_for_curation_concern][:file_set] })
           .call(form).value!
@@ -367,6 +369,44 @@ module Hyrax
       attributes[:uploaded_files] = uploaded_files -
                                     browse_everything_urls
       attributes
+    end
+
+    ##
+    # There are two means of "uploading" files:
+    #
+    # 1. via CarrierWave (e.g., upload in the HTML form)
+    # 2. via BrowseEverything (e.g., select files and later upload
+    #    those URLs)
+    #
+    # This method seeks to somewhat normalize the uploaded files by
+    # creating Hyrax::UploadedFile entries for the BrowseEverthing
+    # files.  Doing this minimizes branching logic up until the
+    # application stack is ready to attach the binary to the
+    # corresponding Hyrax::FileSet.
+    #
+    # @note at this point, this is a Valkyrie only path.  Perhaps a
+    # later refactor will go down the ActiveFedora path.
+    def normalize_uploaded_files!
+      # If they selected a BrowseEverything file, but then clicked the
+      # remove button, it will still show up in `selected_files`, but
+      # it will no longer be in uploaded_files. By checking the
+      # intersection, we get the files they added via BrowseEverything
+      # that they have not removed from the upload widget.
+      uploaded_files = params.fetch(:uploaded_files, [])
+      params.fetch(:selected_files, {}).each_pair do |_, value|
+        next unless uploaded_files.include?(value[:url])
+
+        # This logic mimics the behavior of CarrierWave, namely creating an ActiveRecord record for later
+        # ingest.  In this case, we're swapping out the given URL for the record ID.  Downstream, we'll
+        # act on the URL.
+        uploaded_file = UploadedFile.create!(user: current_user, url_of_remote_file_for_ingest: value[:url])
+        uploaded_files.delete(value[:url])
+        uploaded_files << uploaded_file.to_param
+      end
+      # Need to ensure that we swap out the URLs for the UploadedFile's we created above.  The uploaded_files local
+      # variable is a copy of the params[:uploaded_file] (e.g., they don't have the same object_id)
+      params[:uploaded_files] = uploaded_files unless uploaded_files.empty?
+      true
     end
 
     def after_create_response
