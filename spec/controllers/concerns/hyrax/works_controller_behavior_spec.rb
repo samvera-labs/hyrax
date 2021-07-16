@@ -124,10 +124,14 @@ RSpec.describe Hyrax::WorksControllerBehavior, :clean_repo, type: :controller do
 
       context 'and files' do
         let(:uploads) { FactoryBot.create_list(:uploaded_file, 2, user: user) }
+        let(:url_to_file) { "https://github.com/samvera/hyrax/browse-everything-url.txt" }
+        let(:selected_files) { { "1" => { url: url_to_file } } }
 
         it 'attaches the files' do
           params = { test_simple_work: { title: 'comet in moominland' },
-                     uploaded_files: uploads.map(&:id) }
+                     # Note this is a mix of BrowseEverything files and those "uploaded" via CarrierWave.
+                     uploaded_files: uploads.map(&:id) + [url_to_file],
+                     selected_files: selected_files }
 
           get :create, params: params
 
@@ -135,7 +139,7 @@ RSpec.describe Hyrax::WorksControllerBehavior, :clean_repo, type: :controller do
           expect(flash[:notice]).to eq "Your files are being processed by Hyrax in the background. " \
                                        "The metadata and access controls you specified are being applied. " \
                                        "You may need to refresh this page to see these updates."
-          expect(assigns(:curation_concern)).to have_file_set_members(be_persisted, be_persisted)
+          expect(assigns(:curation_concern)).to have_file_set_members(be_persisted, be_persisted, be_persisted)
         end
 
         let(:uploads) { FactoryBot.create_list(:uploaded_file, 2, user: user) }
