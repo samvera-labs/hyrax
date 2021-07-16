@@ -42,7 +42,7 @@ RSpec.describe Hyrax::Collections::PermissionsCreateService do
 
   describe ".add_access" do
     subject { described_class.add_access(collection_id: collection.id, grants: grants) }
-    let(:collection) { build(:collection_lw, id: 'test_collection', with_permission_template: true) }
+    let(:collection) { FactoryBot.create(:collection_lw, with_permission_template: true) }
     let(:grants) do
       [{ agent_type: Hyrax::PermissionTemplateAccess::GROUP,
          agent_id: 'archivist',
@@ -53,7 +53,6 @@ RSpec.describe Hyrax::Collections::PermissionsCreateService do
 
     before do
       allow(ActiveFedora::Base).to receive(:find).with(collection.id).and_return(collection)
-      allow(collection).to receive(:reset_access_controls!).and_return true
       subject
       depositor_grants.each { |agent| array << agent.agent_id }
     end

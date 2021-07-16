@@ -125,41 +125,19 @@ module Hyrax
       Hyrax::PermissionTemplate.find_by!(source_id: id)
     end
 
+    ##
+    # @deprecated use PermissionTemplate#reset_access_controls instead
+    #
     # Calculate and update who should have read/edit access to the collections based on who
     # has access in PermissionTemplateAccess
     def reset_access_controls!
-      update!(edit_users: permission_template_edit_users,
-              edit_groups: permission_template_edit_groups,
-              read_users: permission_template_read_users,
-              read_groups: (permission_template_read_groups + visibility_group).uniq)
+      Deprecation.warn("reset_access_controls! is deprecated; use PermissionTemplate#reset_access_controls instead.")
+
+      permission_template
+        .reset_access_controls_for(collection: self, interpret_visibility: true)
     end
 
     private
-
-    def permission_template_edit_users
-      permission_template.agent_ids_for(access: 'manage', agent_type: 'user')
-    end
-
-    def permission_template_edit_groups
-      permission_template.agent_ids_for(access: 'manage', agent_type: 'group')
-    end
-
-    def permission_template_read_users
-      (permission_template.agent_ids_for(access: 'view', agent_type: 'user') +
-        permission_template.agent_ids_for(access: 'deposit', agent_type: 'user')).uniq
-    end
-
-    def permission_template_read_groups
-      (permission_template.agent_ids_for(access: 'view', agent_type: 'group') +
-        permission_template.agent_ids_for(access: 'deposit', agent_type: 'group')).uniq -
-        [::Ability.registered_group_name, ::Ability.public_group_name]
-    end
-
-    def visibility_group
-      return [Hydra::AccessControls::AccessRight::PERMISSION_TEXT_VALUE_PUBLIC] if visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
-      return [Hydra::AccessControls::AccessRight::PERMISSION_TEXT_VALUE_AUTHENTICATED] if visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED
-      []
-    end
 
     # Solr field name works use to index member ids
     def member_ids_field

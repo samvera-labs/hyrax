@@ -9,7 +9,7 @@ module Hyrax
   # There is an interplay between an AdminSet and a PermissionTemplate.
   #
   # @see Hyrax::AdminSet for further discussion
-  class PermissionTemplate < ActiveRecord::Base
+  class PermissionTemplate < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     self.table_name = 'permission_templates'
 
     has_many :access_grants, class_name: 'Hyrax::PermissionTemplateAccess', dependent: :destroy
@@ -151,6 +151,57 @@ module Hyrax
 
       # Validate that passed in value matches visibility requirement exactly
       visibility == value
+    end
+
+    ##
+    # @return [Array<String>]
+    def edit_users
+      agent_ids_for(access: 'manage', agent_type: 'user')
+    end
+
+    ##
+    # @return [Array<String>]
+    def edit_groups
+      agent_ids_for(access: 'manage', agent_type: 'group')
+    end
+
+    ##
+    # @return [Array<String>]
+    def read_users
+      (agent_ids_for(access: 'view', agent_type: 'user') +
+        agent_ids_for(access: 'deposit', agent_type: 'user')).uniq
+    end
+
+    ##
+    # @return [Array<String>]
+    def read_groups
+      (agent_ids_for(access: 'view', agent_type: 'group') +
+        agent_ids_for(access: 'deposit', agent_type: 'group')).uniq -
+        [::Ability.registered_group_name, ::Ability.public_group_name]
+    end
+
+    ##
+    # @return [Boolean]
+    def reset_access_controls(interpret_visibility: false)
+      reset_access_controls_for(collection: source_model,
+                                interpret_visibility: interpret_visibility)
+    end
+
+    ##
+    # @return [Boolean]
+    def reset_access_controls_for(collection:, interpret_visibility: false)
+      interpreted_read_groups = read_groups
+
+      if interpret_visibility
+        visibilities = Hyrax::VisibilityMap.instance
+        interpreted_read_groups -= visibilities.deletions_for(visibility: collection.visibility)
+        interpreted_read_groups += visibilities.additions_for(visibility: collection.visibility)
+      end
+
+      collection.update!(edit_users: edit_users,
+                         edit_groups: edit_groups,
+                         read_users: read_users,
+                         read_groups: interpreted_read_groups.uniq)
     end
 
     private

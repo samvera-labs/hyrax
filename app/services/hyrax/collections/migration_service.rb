@@ -40,6 +40,7 @@ module Hyrax
       end
       private_class_method :migrate_collection
 
+      ##
       # @api private
       #
       # Migrate a single adminset to grant depositors and viewers read access to the admin set unless the grant is for
@@ -50,7 +51,8 @@ module Hyrax
       def self.migrate_adminset(adminset)
         Hyrax::PermissionTemplateAccess.find_or_create_by(permission_template_id: adminset.permission_template.id,
                                                           agent_type: "group", agent_id: "admin", access: "manage")
-        adminset.reset_access_controls!
+
+        adminset.permission_template.reset_access_controls_for(collection: adminset)
       end
       private_class_method :migrate_adminset
 
@@ -84,7 +86,7 @@ module Hyrax
         collection.collection_type_gid = Hyrax::CollectionType.find_or_create_default_collection_type.to_global_id
         permission_template = Hyrax::PermissionTemplate.find_by(source_id: collection.id)
         if permission_template.present?
-          collection.reset_access_controls!
+          permission_template.reset_access_controls_for(collection: collection, interpret_visibility: true)
         else
           create_permissions(collection)
         end

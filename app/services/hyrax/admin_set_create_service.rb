@@ -81,9 +81,11 @@ module Hyrax
       ::Ability.admin_group_name
     end
 
+    ##
+    # @return [PermissionTemplate]
     def create_permission_template
       permission_template = PermissionTemplate.create!(source_id: admin_set.id, access_grants_attributes: access_grants_attributes)
-      admin_set.reset_access_controls!
+      permission_template.reset_access_controls_for(collection: admin_set)
       permission_template
     end
 
