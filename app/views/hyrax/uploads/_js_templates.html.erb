@@ -49,6 +49,56 @@
       }
     });
   }
+
+  // For Disabling the File Set Visibility Options based on the Admin Set Configuration
+  // Function should be loaded before the table row loads
+  function setVisiblityOptions(fileId, ModelConcern) {
+    var fileSetDropDownId = 'file-set-visibility-drop-down-' + fileId
+    disableDropDownItemsByAdminSetConfig(fileSetDropDownId)
+    applyEmbargoDateFieldInputSetting(fileId, ModelConcern)
+    applyEmbargoVisbilityFieldAfterEmbargoPeriod(fileId, ModelConcern)
+    checkedValue = $('ul.visibility li.radio :input:radio:checked').val()
+    $('#'+ fileSetDropDownId).val(checkedValue);
+    $('#'+ fileSetDropDownId).trigger('change');
+  }
+
+  function disableDropDownItemsByAdminSetConfig(dropDownId) {
+    var disabledVisibilityOptions = []
+    $('ul.visibility li.radio :input:radio:disabled').each(function () {
+      disabledVisibilityOptions.push($(this).val());
+    });
+
+    $.each(disabledVisibilityOptions, function(index, visibilityValue) {
+      $('#'+ dropDownId +" option[value='" + visibilityValue + "']").remove();
+    });
+  }
+
+  function applyEmbargoVisbilityFieldAfterEmbargoPeriod(fileId, ModelConcern) {
+     embargoVisibilityFieldDatePickerInput = '#' + ModelConcern + '_visibility_after_embargo'
+     if ($(embargoVisibilityFieldDatePickerInput).is(':disabled')) {
+      $('#file_set_visibility_after_embargo_' + fileId).prop('disabled', true)
+      $('#file_set_visibility_after_embargo_' + fileId).val($(embargoVisibilityFieldDatePickerInput).val())
+    }
+  }
+
+  function applyEmbargoDateFieldInputSetting(fileId, ModelConcern) {
+    embargoVisibilityFieldDatePickerInput = '#' + ModelConcern + '_embargo_release_date'
+    if ($(embargoVisibilityFieldDatePickerInput).val()){
+      $('#embargo_date_picker_' + fileId).val(new Date($(embargoVisibilityFieldDatePickerInput).val()).toJSON().slice(0,10))
+    }
+
+    if ($(embargoVisibilityFieldDatePickerInput).attr('min')) {
+      $('#embargo_date_picker_' + fileId).attr('min', $(embargoVisibilityFieldDatePickerInput).attr('min'));
+    }
+
+    if ($(embargoVisibilityFieldDatePickerInput).attr('max')) {
+      $('#embargo_date_picker_' + fileId).attr('max', $(embargoVisibilityFieldDatePickerInput).attr('max'));
+    }
+
+    if ($(embargoVisibilityFieldDatePickerInput).is(':disabled')) {
+      $('#embargo_date_picker_' + fileId).prop('disabled', true);
+    }
+  }
 </script>
 
 <!-- The template to display files available for download -->
@@ -97,6 +147,7 @@
 <!-- Simpler display of files available for download. Originally from hyrax/base/_form_files -->
 <!-- TODO: further consolidate with template-download above -->
 <script id="template-download" type="text/x-tmpl">
+{% var curation_concern = $('form').data('param-key'); %}
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download <%= fade_class_if_not_test %>">
         <td>
@@ -122,6 +173,46 @@
         <td>
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
         </td>
+        <td>
+          <div class="file-set-visibility-div">
+            <select id="file-set-visibility-drop-down-{%= file.id %}" onChange="setVisiblityTypes({%= file.id %})" name="{%=curation_concern%}[file_set][][visibility]">
+              <option value="open"> Public </option>
+              <option value="authenticated"> Institution </option>
+              <option value="embargo"> Embargo </option>
+              <option value="lease"> Lease </option>
+              <option value="restricted"> Private </option>
+            </select>
+            <input type="hidden" name="{%=curation_concern%}[file_set][][uploaded_file_id]" value="{%=file.id%}"></input>
+            <div id="embargo_file_set_{%=file.id%}" class="hide">
+              <label>Restricted to</label>
+              <select name="{%=curation_concern%}[file_set][][visibility_during_embargo]">
+                <option value="restricted"> Private </option>
+                <option value="authenticated"> Institution </option>
+              </select>
+              <input type="date" class="datepicker form-control" id="embargo_date_picker_{%=file.id%}" value="{%=new Date().toJSON().slice(0,10)%}" name="{%=curation_concern%}[file_set][][embargo_release_date]"></input>
+              <label>Open it up to</label>
+              <select name="{%=curation_concern%}[file_set][][visibility_after_embargo]" id="file_set_visibility_after_embargo_{%=file.id%}">
+                <option value="open"> Public </option>
+                <option value="authenticated"> Institution </option>
+              </select>
+            </div>
+            <div id="lease_file_set_{%=file.id%}" class="hide">
+            <label>Set Date for Future Reduced Access</label>
+            <div>
+              <label>is Available to</label>
+              <select name="{%=curation_concern%}[file_set][][visibility_during_lease]">
+                <option value="open"> Public </option>
+                <option value="authenticated"> Institution </option>
+              </select>
+              <input type="date" class="datepicker form-control" value="{%=new Date().toJSON().slice(0,10)%}" name="{%=curation_concern%}[file_set][][lease_expiration_date]"></input>
+              <label>Open it up to</label>
+              <select name="{%=curation_concern%}[file_set][][visibility_after_lease]">
+                <option value="restricted"> Private </option>
+                <option value="authenticated"> Institution </option>
+              </select>
+            </div>
+          </div>
+        </td>
         <td class="text-right">
             <button class="btn btn-sm btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
                 <span class="glyphicon glyphicon-trash"></span>
@@ -129,5 +220,35 @@
             </button>
         </td>
     </tr>
+  {% var RecentFileId = file.id; %}
+  {% var ModelConcern = curation_concern; %}
+  {% setTimeout(function(){ setVisiblityOptions(RecentFileId, ModelConcern) }, 300); %}
 {% } %}
+</script>
+<script type="text/javascript">
+ function setVisiblityTypes(fileId){
+   var fileSetDropDownId = 'file-set-visibility-drop-down-' + fileId
+   var fileSetDropDownValue = $('#' + fileSetDropDownId).val()
+   $('#file_set_visiblity_' + fileId).val(fileSetDropDownValue)
+   if (fileSetDropDownValue == 'embargo'){
+    hideDivAndDisableInputs('lease_file_set_' + fileId);
+    displayDivAndEnableInputs('embargo_file_set_' + fileId);
+   }
+   else if(fileSetDropDownValue == 'lease'){
+    hideDivAndDisableInputs('embargo_file_set_' + fileId);
+    displayDivAndEnableInputs('lease_file_set_' + fileId);
+   }
+   else{
+    hideDivAndDisableInputs('lease_file_set_' + fileId);
+    hideDivAndDisableInputs('embargo_file_set_' + fileId);
+   }
+ }
+
+ function hideDivAndDisableInputs(divId) {
+   $('#' + divId).addClass('hide');
+ }
+
+function displayDivAndEnableInputs(divId) {
+  $('#' + divId).removeClass('hide');
+ }
 </script>
