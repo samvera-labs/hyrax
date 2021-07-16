@@ -1,19 +1,44 @@
 # frozen_string_literal: true
 module Hyrax
   ##
-  # Defines behavior that is applied to objects added as members of an AdminSet
+  # Holds policy data about the workflow and permissions applied objects when
+  # they are deposited through an Administrative Set or a Collection. Each
+  # template record has a {#source} (through {#source_id}); the template's
+  # rules inform the behavior of objects deposited through that {#source_model}.
   #
-  #  * access rights to stamp on each object
-  #  * calculate embargo/lease release dates
+  # The {PermissionTemplate} specifies:
   #
-  # There is an interplay between an AdminSet and a PermissionTemplate.
+  # - an {#active_workflow} that the object will enter and be processed through.
+  # - {#access_grants} that can be applied to each object (especially at deposit
+  #   time).
+  # - an embargo configuration ({#release_date} {#release_period}) for default
+  #   embargo behavior.
   #
-  # @see Hyrax::AdminSet for further discussion
-  class PermissionTemplate < ActiveRecord::Base
+  # @todo write up what "default embargo behavior", when it is applied, and how
+  #   it interacts with embargoes specified by user input.
+  #
+  # @see Hyrax::AdministrativeSet
+  class PermissionTemplate < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     self.table_name = 'permission_templates'
 
+    ##
+    # @!attribute [rw] source_id
+    #   @return [String] identifier for the {Collection} or {AdministrativeSet}
+    #     to which this template applies.
+    # @!attribute [rw] access_grants
+    #   @return [Hyrax::PermissionTemplateAccess]
+    # @!attribute [rw] active_workflow
+    #   @return [Sipity::Workflow]
+    # @!attribute [rw] available_workflows
+    #   @return [Enumerable<Sipity::Workflow>]
     has_many :access_grants, class_name: 'Hyrax::PermissionTemplateAccess', dependent: :destroy
     accepts_nested_attributes_for :access_grants, reject_if: :all_blank
+
+    # The list of workflows that could be activated; It includes the active workflow
+    has_many :available_workflows, class_name: 'Sipity::Workflow', dependent: :destroy
+
+    # In a perfect world, there would be a join table that enforced uniqueness on the ID.
+    has_one :active_workflow, -> { where(active: true) }, class_name: 'Sipity::Workflow', foreign_key: :permission_template_id
 
     ##
     # @api public
@@ -27,12 +52,6 @@ module Hyrax
     def agent_ids_for(agent_type:, access:)
       access_grants.where(agent_type: agent_type, access: access).pluck(:agent_id)
     end
-
-    # The list of workflows that could be activated; It includes the active workflow
-    has_many :available_workflows, class_name: 'Sipity::Workflow', dependent: :destroy
-
-    # In a perfect world, there would be a join table that enforced uniqueness on the ID.
-    has_one :active_workflow, -> { where(active: true) }, class_name: 'Sipity::Workflow', foreign_key: :permission_template_id
 
     ##
     # @note this is a convenience method for +Hyrax.query_service.find_by(id: template.source_id)+

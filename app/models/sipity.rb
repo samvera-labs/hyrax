@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
+##
+# {Sipity} is a workflow/state engine.
 module Sipity
+  ##
+  # Cast a given input (e.g. a +::User+ or {Hyrax::Group} to a {Sipity::Agent}).
+  #
+  # @param input [Object]
   def Agent(input, &block) # rubocop:disable Naming/MethodName
     result = case input
              when Sipity::Agent

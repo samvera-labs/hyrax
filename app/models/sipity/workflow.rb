@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 module Sipity
+  ##
   # A named workflow for processing an entity. Originally I had thought of
   # calling this a Type, but once I extracted the Processing submodule,
   # type felt to much of a noun, not conveying potentiality. Workflow
